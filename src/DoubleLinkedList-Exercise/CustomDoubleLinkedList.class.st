@@ -76,6 +76,84 @@ CustomDoubleLinkedList >> initialize [
 ]
 
 { #category : #modifying }
+CustomDoubleLinkedList >> insertAfter: aCell value: aValue [
+	"Insert a value after an existing cell. O(1)"
+	|next cell|
+	
+	aCell 
+		ifNil: [ Exception signal: 'Can not insert a value after a cell equals to nil.' ].
+	
+	next := aCell next.
+	cell := CustomDoubleLinkedListCell new value: aValue.
+	next 
+		ifNil: [ self insertTail: aValue ]
+		ifNotNil: [ 
+			aCell next: cell.
+			cell previous: aCell.
+			
+			next previous: cell.
+			cell next: next.
+			
+			size := size + 1.
+		].
+		 
+
+]
+
+{ #category : #modifying }
+CustomDoubleLinkedList >> insertAfterIndex: aIndex value: aValue [
+	"Insert a value after the cell at the given index, if it exists. O(N/2) -> O(N)"
+	|maxIndex|
+	maxIndex := (self size) - 1.
+	
+	(aIndex < 0) | (aIndex > maxIndex)  
+		ifTrue: [ Exception signal: 'Index "' , aIndex printString , '" not existing in the list.' ]
+		ifFalse: [ 
+			self insertAfter: (self getCellAt: aIndex) value: aValue
+		].
+	
+]
+
+{ #category : #modifying }
+CustomDoubleLinkedList >> insertBefore: aCell value: aValue [
+	"Insert a value before an existing cell. O(1)"
+	|previous cell|
+	
+	aCell 
+		ifNil: [ Exception signal: 'Can not insert a value before a cell equals to nil.' ].
+		
+	previous := aCell previous.
+	cell := CustomDoubleLinkedListCell new value: aValue.
+	previous 
+		ifNil: [ self insertHead: aValue ]
+		ifNotNil: [ 
+			aCell previous: cell.
+			cell next: aCell.
+			
+			previous next: cell.
+			cell previous: previous.
+			
+			size := size + 1.
+		].
+		 
+
+]
+
+{ #category : #modifying }
+CustomDoubleLinkedList >> insertBeforeIndex: aIndex value: aValue [
+	"Insert a value before the cell at the given index, if it exists. O(N/2) -> O(N)"
+	|maxIndex|
+	maxIndex := (self size) - 1.
+	
+	(aIndex < 0) | (aIndex > maxIndex)  
+		ifTrue: [ Exception signal: 'Index "' , aIndex printString , '" not existing in the list.' ]
+		ifFalse: [ 
+			self insertBefore: (self getCellAt: aIndex) value: aValue
+		].
+	
+]
+
+{ #category : #modifying }
 CustomDoubleLinkedList >> insertHead: aValue [
 	"Insert a value at the head of the list. O(1)"
 	|cell|
@@ -109,6 +187,33 @@ CustomDoubleLinkedList >> insertTail: aValue [
 CustomDoubleLinkedList >> isEmpty [
 	"Checks if the list is empty or not. O(1)"
 	^ head isNil & tail isNil
+]
+
+{ #category : #modifying }
+CustomDoubleLinkedList >> remove: aCell [
+	"Remove a cell from the list. O(1)"
+	| previous next |
+	aCell 
+		ifNil: [ Exception signal: 'Can not remove a cell equals to nil.' ].
+	previous := aCell previous.
+	next := aCell next.
+	self isEmpty 
+		ifTrue: [ Exception signal: 'The list is empty.' ]
+		ifFalse: [ 
+			previous 
+				ifNil: [ head := next ]
+				ifNotNil: [ previous next: next ].
+			next 
+				ifNil: [ tail := previous ] 
+				ifNotNil: [ next previous: previous ].
+			size := size - 1.
+		].
+]
+
+{ #category : #modifying }
+CustomDoubleLinkedList >> removeAt: aIndex [
+	"Remove the item from the list a the specified index if it exists. O(N/2) -> O(N)"
+	self remove: (self getCellAt: aIndex)	
 ]
 
 { #category : #modifying }
